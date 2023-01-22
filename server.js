@@ -4,12 +4,14 @@ const bcrypt = require("bcrypt")
 
 const generateJwt = require("./utils/jwt.js")
 const authorize = require("./middleware/authorize.js")
+const cors = require('cors')
 
 const app = express()
 
 const users = []
 
 app.use(express.json())
+app.use(cors())
 
 app.get("/", (req, res) => {
     res.send("Hello migracode!")
@@ -18,18 +20,22 @@ app.get("/", (req, res) => {
 app.post("/users/sign-up", async function (request, response) {
     const { email, name, password } = request.body
     
-    const salt = await bcrypt.genSalt(10)
-    const encryptedPassword = await bcrypt.hash(password, salt)
-    const userId = users.length
-    const newUser = {
-        id: userId,
-        email: email,
-        password: encryptedPassword,
-        name: name
+    try {
+        const salt = await bcrypt.genSalt(10)
+        const encryptedPassword = await bcrypt.hash(password, salt)
+        const userId = users.length
+        const newUser = {
+            id: userId,
+            email: email,
+            password: encryptedPassword,
+            name: name
+        }
+        users.push(newUser)
+    
+        response.send({jwtToken: generateJwt(userId), isAuthenticated: true})
+    } catch (error) {
+        response.send({error: JSON.stringify(error)}).status(500)
     }
-    users.push(newUser)
-
-    response.send({jwtToken: generateJwt(userId), isAuthenticated: true})
 })
 
 app.post("/users/sign-in", async function (request, response) {
