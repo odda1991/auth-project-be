@@ -6,6 +6,8 @@ const generateJwt = require("./utils/jwt.js")
 const authorize = require("./middleware/authorize.js")
 const cors = require('cors')
 
+const quotes = require("./quotes.json");
+
 const app = express()
 
 const users = []
@@ -64,7 +66,7 @@ app.post("/users/sign-in", async function (request, response) {
 })
 
 app.get("/quotes", authorize, function (request, response) {
-    response.send("A beautiful quote")
+    response.json(quotes)
 })
 
 const port = process.env.PORT
