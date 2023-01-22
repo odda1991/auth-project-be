@@ -34,26 +34,33 @@ app.post("/users/sign-up", async function (request, response) {
     
         response.send({jwtToken: generateJwt(userId), isAuthenticated: true})
     } catch (error) {
-        response.send({error: JSON.stringify(error)}).status(500)
+        console.error(error.message);
+        response.status(500).send({error: error.message});
     }
 })
 
 app.post("/users/sign-in", async function (request, response) {
     const { email, password } = request.body
 
-    const foundUser = users.find(function (user) {
-        return user.email == email
-    })
-    if (foundUser == undefined) {
-        return response.status(401).json({error: "Invalid Credential", isAuthenticated: false});
-    }
+    try {
+        const foundUser = users.find(function (user) {
+            return user.email == email
+        })
+        if (foundUser == undefined) {
+            return response.status(401).json({error: "Invalid Credential", isAuthenticated: false});
+        }
 
-    const isPasswordValid = await bcrypt.compare(password, foundUser.password)
-    if (isPasswordValid == false) {
-        return response.status(401).json({error: "Invalid Credential", isAuthenticated: false});
-    }
+        const isPasswordValid = await bcrypt.compare(password, foundUser.password)
+        if (isPasswordValid == false) {
+            return response.status(401).json({error: "Invalid Credential", isAuthenticated: false});
+        }
 
-    response.send({jwtToken: generateJwt(foundUser.id), isAuthenticated: true})
+        response.send({jwtToken: generateJwt(foundUser.id), isAuthenticated: true})
+
+    } catch (error) {
+        console.error(error.message);
+        response.status(500).send({error: error.message});
+    }
 })
 
 app.get("/quotes", authorize, function (request, response) {

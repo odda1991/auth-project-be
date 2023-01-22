@@ -2,7 +2,11 @@ const jwt = require("jsonwebtoken")
 
 function auth(req, res, next) {
     const bearerToken = req.header("authorization")
-    // if there is no authorization header we should really send an error...
+
+    if (!bearerToken) {
+        return res.status(403).send({ message: "authorization denied", isAuthenticated: false });
+    }
+    
     const token = bearerToken.split(" ")[1];
     
     try {
@@ -11,7 +15,7 @@ function auth(req, res, next) {
     
         next()
     } catch {
-        res.status(403).send("Invalid token")
+        res.status(401).send({ message: "Token is not valid", isAuthenticated: false });
     }
 }
 
