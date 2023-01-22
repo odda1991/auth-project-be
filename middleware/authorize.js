@@ -3,8 +3,8 @@ const jwt = require("jsonwebtoken")
 function auth(req, res, next) {
     const bearerToken = req.header("authorization")
 
-    if (!bearerToken) {
-        return res.status(403).send({ message: "authorization denied", isAuthenticated: false });
+    if (bearerToken == undefined) {
+        res.status(401).send({ message: "Token is not valid", isAuthenticated: false });
     }
     
     const token = bearerToken.split(" ")[1];
